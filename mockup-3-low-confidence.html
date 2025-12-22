@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InboxZero - Low Confidence Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
+        }
+        
+        .ai-badge {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #991b1b;
+            font-weight: 500;
+        }
+        
+        .email-header {
+            padding: 24px 24px 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .email-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .email-meta-item {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .email-meta-label {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 80px;
+        }
+        
+        .email-meta-value {
+            color: #111827;
+        }
+        
+        .email-subject {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .email-body {
+            padding: 24px;
+            background: #fafbfc;
+            color: #374151;
+            line-height: 1.6;
+            min-height: 150px;
+        }
+        
+        .ai-suggestion {
+            padding: 24px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .suggestion-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .ai-guesses {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .ai-guesses-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        
+        .guess-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .guess-item:last-child {
+            border-bottom: none;
+        }
+        
+        .guess-label {
+            font-size: 14px;
+            color: #374151;
+        }
+        
+        .guess-percentage {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #94a3b8;
+            transition: width 0.3s;
+        }
+        
+        .category-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-item:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .email-actions {
+            padding: 20px 24px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .scenario-label {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #111827;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #9ca3af;
+            font-style: italic;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scenario-label">SCENARIO 3: LOW CONFIDENCE (<60%)</div>
+    
+    <div class="email-container">
+        <div class="ai-badge">
+            ⚠️ AI Uncertain - Manual Review Required
+        </div>
+        
+        <div class="email-header">
+            <div class="email-meta">
+                <div class="email-meta-item">
+                    <span class="email-meta-label">From:</span>
+                    <span class="email-meta-value">confusing.email@customer.com</span>
+                </div>
+                <div class="email-meta-item">
+                    <span class="email-meta-label">To:</span>
+                    <span class="email-meta-value">support@company.com</span>
+                </div>
+                <div class="email-meta-item">
+                    <span class="email-meta-label">Date:</span>
+                    <span class="email-meta-value">Dec 22, 2025, 4:22 PM</span>
+                </div>
+            </div>
+            <div class="email-subject">
+                Multiple issues with order - urgent help needed
+            </div>
+        </div>
+        
+        <div class="email-body">
+            <p>Hi there,</p>
+            <br>
+            <p>I'm extremely frustrated with my recent order. I placed an order 5 days ago and:</p>
+            <br>
+            <p>- The package still hasn't arrived even though it said 2-day shipping<br>
+            - I was charged twice on my credit card<br>
+            - I can't login to my account to check order status<br>
+            - I also want to return the shoes I bought last month<br>
+            - Your chatbot keeps giving me the same unhelpful responses</p>
+            <br>
+            <p>This is the THIRD time I'm emailing about this. Can someone ACTUALLY help me this time???</p>
+            <br>
+            <p>Very disappointed customer</p>
+        </div>
+        
+        <div class="ai-suggestion">
+            <div class="ai-guesses">
+                <div class="ai-guesses-title">🤖 AI's best guesses (for reference only):</div>
+                
+                <div class="guess-item">
+                    <div>
+                        <div class="guess-label">Tracking / Logistics</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    <div class="guess-percentage">45%</div>
+                </div>
+                
+                <div class="guess-item">
+                    <div>
+                        <div class="guess-label">Tech Support</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 35%;"></div>
+                        </div>
+                    </div>
+                    <div class="guess-percentage">35%</div>
+                </div>
+                
+                <div class="guess-item">
+                    <div>
+                        <div class="guess-label">Refunds</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 15%;"></div>
+                        </div>
+                    </div>
+                    <div class="guess-percentage">15%</div>
+                </div>
+                
+                <div class="guess-item">
+                    <div>
+                        <div class="guess-label">Other / Escalation</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 5%;"></div>
+                        </div>
+                    </div>
+                    <div class="guess-percentage">5%</div>
+                </div>
+            </div>
+            
+            <div class="category-label">Manual routing required - select department(s):</div>
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Refunds</div>
+                </div>
+                
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Tech Support</div>
+                </div>
+                
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Tracking / Logistics</div>
+                </div>
+                
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Other / Senior Escalation</div>
+                </div>
+            </div>
+            
+            <div class="help-text">
+                💡 Tip: This email contains multiple issues and mentions repeat contact. Consider escalating to senior agent or selecting multiple departments.
+            </div>
+        </div>
+        
+        <div class="email-actions">
+            <button class="btn-primary">Route Selected Department(s)</button>
+        </div>
+    </div>
+</body>
+</html>

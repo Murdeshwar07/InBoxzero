@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InboxZero - Metrics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f8fafc;
+            padding: 40px;
+            color: #1e293b;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .time-period {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        
+        .north-star {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        
+        .north-star-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .north-star-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+        }
+        
+        .north-star-metric {
+            flex: 1;
+        }
+        
+        .metric-value {
+            font-size: 56px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .metric-change {
+            font-size: 18px;
+            font-weight: 600;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .metric-change.negative {
+            color: #ef4444;
+        }
+        
+        .metric-target {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        
+        .north-star-chart {
+            flex: 2;
+            height: 200px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        
+        .guardrails-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .guardrail-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border-left: 4px solid #e2e8f0;
+        }
+        
+        .guardrail-card.healthy {
+            border-left-color: #10b981;
+        }
+        
+        .guardrail-card.warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .guardrail-card.danger {
+            border-left-color: #ef4444;
+        }
+        
+        .guardrail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .guardrail-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge.healthy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .guardrail-value {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .guardrail-threshold {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        
+        .threshold-bar {
+            height: 8px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .threshold-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .threshold-fill.healthy {
+            background: #10b981;
+        }
+        
+        .threshold-fill.warning {
+            background: #f59e0b;
+        }
+        
+        .threshold-fill.danger {
+            background: #ef4444;
+        }
+        
+        .threshold-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #1e293b;
+        }
+        
+        .charts-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-container:last-child {
+            margin-bottom: 0;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .insights-panel {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 32px;
+        }
+        
+        .insights-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .insights-list {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.7;
+        }
+        
+        .insights-list li {
+            margin-bottom: 8px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="dashboard-title">InboxZero - Product Metrics Dashboard</div>
+            <div class="dashboard-subtitle">AI Email Classification System Performance</div>
+            <div class="time-period">📅 Week 8 of MVP Launch (Dec 15-22, 2025)</div>
+        </div>
+        
+        <!-- North Star Metric -->
+        <div class="north-star">
+            <div class="north-star-label">⭐ North Star Metric</div>
+            <div class="north-star-content">
+                <div class="north-star-metric">
+                    <div class="metric-value">650</div>
+                    <div class="metric-change">
+                        ↗ +150 tickets/week (+30%)
+                    </div>
+                    <div class="metric-target">Target: 700 tickets/week (40% increase) by Week 12</div>
+                </div>
+                <div class="north-star-chart">
+                    <canvas id="northStarChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Guardrails -->
+        <div class="section-title">🛡️ Guardrail Metrics</div>
+        <div class="guardrails-grid">
+            <!-- Misroute Rate -->
+            <div class="guardrail-card healthy">
+                <div class="guardrail-header">
+                    <div class="guardrail-name">Misroute Rate</div>
+                    <div class="status-badge healthy">Healthy</div>
+                </div>
+                <div class="guardrail-value">11.2%</div>
+                <div class="guardrail-threshold">Threshold: &lt;15% (Kill switch if exceeded)</div>
+                <div class="threshold-bar">
+                    <div class="threshold-fill healthy" style="width: 74.7%;"></div>
+                    <div class="threshold-marker" style="left: 100%;"></div>
+                </div>
+            </div>
+            
+            <!-- CSAT Score -->
+            <div class="guardrail-card healthy">
+                <div class="guardrail-header">
+                    <div class="guardrail-name">CSAT Score</div>
+                    <div class="status-badge healthy">Healthy</div>
+                </div>
+                <div class="guardrail-value">88%</div>
+                <div class="guardrail-threshold">Threshold: &gt;85% (Pull sample if drops below)</div>
+                <div class="threshold-bar">
+                    <div class="threshold-fill healthy" style="width: 88%;"></div>
+                    <div class="threshold-marker" style="left: 85%;"></div>
+                </div>
+            </div>
+            
+            <!-- Agent Satisfaction -->
+            <div class="guardrail-card healthy">
+                <div class="guardrail-header">
+                    <div class="guardrail-name">Agent Satisfaction</div>
+                    <div class="status-badge healthy">Healthy</div>
+                </div>
+                <div class="guardrail-value">4.2/5</div>
+                <div class="guardrail-threshold">Threshold: &gt;3/5 (Focus group if drops below)</div>
+                <div class="threshold-bar">
+                    <div class="threshold-fill healthy" style="width: 84%;"></div>
+                    <div class="threshold-marker" style="left: 60%;"></div>
+                </div>
+            </div>
+            
+            <!-- Average Handling Time -->
+            <div class="guardrail-card warning">
+                <div class="guardrail-header">
+                    <div class="guardrail-name">Avg Handling Time</div>
+                    <div class="status-badge warning">Acceptable</div>
+                </div>
+                <div class="guardrail-value">8.7 min</div>
+                <div class="guardrail-threshold">Baseline: 8.0 min | Red flag: &gt;9.2 min (+15%)</div>
+                <div class="threshold-bar">
+                    <div class="threshold-fill warning" style="width: 75.4%;"></div>
+                    <div class="threshold-marker" style="left: 100%;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trend Charts -->
+        <div class="charts-section">
+            <div class="section-title">📈 Trend Analysis</div>
+            
+            <!-- Volume Trend -->
+            <div class="chart-container">
+                <div class="chart-title">Weekly Ticket Volume (Target: 700)</div>
+                <canvas id="volumeChart"></canvas>
+            </div>
+            
+            <!-- Guardrails Trend -->
+            <div class="chart-container">
+                <div class="chart-title">Guardrail Metrics Over Time</div>
+                <canvas id="guardrailsChart"></canvas>
+            </div>
+            
+            <!-- AI Performance -->
+            <div class="chart-container">
+                <div class="chart-title">AI Routing Distribution</div>
+                <canvas id="aiDistributionChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Insights -->
+        <div class="insights-panel">
+            <div class="insights-title">💡 Key Insights & Action Items</div>
+            <ul class="insights-list">
+                <li><strong>On Track:</strong> Weekly volume increased 30% (650 tickets). Projected to hit 40% target (700) by Week 12.</li>
+                <li><strong>Healthy Guardrails:</strong> All metrics within acceptable thresholds. No kill switch triggers.</li>
+                <li><strong>AHT Variance:</strong> 8.7 min (+8.75% from baseline). Within Month 1-2 learning curve expectations (acceptable up to +12%).</li>
+                <li><strong>Model Improving:</strong> Misroute rate decreased from 13.5% (Week 4) to 11.2% (Week 8) due to weekly retraining.</li>
+                <li><strong>Agent Adoption:</strong> 4.2/5 satisfaction score indicates positive reception. Agents report AI suggestions save time.</li>
+                <li><strong>Next Action:</strong> Continue weekly retraining. Monitor AHT closely in Week 9-10. If still elevated, conduct root cause analysis.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Chart.js configuration
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif';
+        Chart.defaults.color = '#64748b';
+        
+        // North Star Mini Chart
+        const nsCtx = document.getElementById('northStarChart').getContext('2d');
+        new Chart(nsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                datasets: [{
+                    label: 'Actual',
+                    data: [500, 520, 545, 570, 595, 615, 630, 650],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: true
+                },
+                {
+                    label: 'Target Path',
+                    data: [500, 550, 583, 617, 650, 667, 683, 700],
+                    borderColor: '#10b981',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 450,
+                        max: 750,
+                        ticks: {
+                            callback: function(value) {
+                                return value;
+                            }
+                        }
+                    },
+                    x: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Volume Trend Chart
+        const volCtx = document.getElementById('volumeChart').getContext('2d');
+        new Chart(volCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                datasets: [{
+                    label: 'Tickets Processed',
+                    data: [500, 520, 545, 570, 595, 615, 630, 650],
+                    backgroundColor: '#667eea',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Target (700)',
+                    data: [700, 700, 700, 700, 700, 700, 700, 700],
+                    type: 'line',
+                    borderColor: '#10b981',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 400,
+                        max: 800
+                    }
+                }
+            }
+        });
+        
+        // Guardrails Chart
+        const guardCtx = document.getElementById('guardrailsChart').getContext('2d');
+        new Chart(guardCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                datasets: [
+                    {
+                        label: 'Misroute Rate (%)',
+                        data: [14.5, 14.2, 13.8, 13.5, 12.8, 12.3, 11.7, 11.2],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'CSAT (%)',
+                        data: [90, 89, 88, 87, 87, 88, 88, 88],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'Agent Satisfaction (out of 5)',
+                        data: [3.8, 3.9, 4.0, 4.1, 4.1, 4.2, 4.2, 4.2],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y2'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        min: 0,
+                        max: 20,
+                        title: {
+                            display: true,
+                            text: 'Misroute Rate (%)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        min: 80,
+                        max: 95,
+                        title: {
+                            display: true,
+                            text: 'CSAT (%)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    y2: {
+                        type: 'linear',
+                        position: 'right',
+                        min: 3,
+                        max: 5,
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // AI Distribution Chart
+        const aiCtx = document.getElementById('aiDistributionChart').getContext('2d');
+        new Chart(aiCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                datasets: [
+                    {
+                        label: 'Auto-Routed (≥90%)',
+                        data: [280, 312, 350, 370, 390, 410, 425, 440],
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Pre-Sorted (60-89%)',
+                        data: [170, 168, 155, 150, 145, 145, 145, 150],
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Manual Review (<60%)',
+                        data: [50, 40, 40, 50, 60, 60, 60, 60],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Emails'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

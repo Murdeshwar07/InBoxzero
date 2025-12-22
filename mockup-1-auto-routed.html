@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InboxZero - Auto-Routed Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
+        }
+        
+        .ai-badge {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        
+        .email-header {
+            padding: 24px 24px 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .email-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .email-meta-item {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .email-meta-label {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 80px;
+        }
+        
+        .email-meta-value {
+            color: #111827;
+        }
+        
+        .email-subject {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .email-body {
+            padding: 24px;
+            background: #fafbfc;
+            color: #374151;
+            line-height: 1.6;
+            min-height: 150px;
+        }
+        
+        .email-actions {
+            padding: 20px 24px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #9ca3af;
+            color: #374151;
+        }
+        
+        .scenario-label {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #111827;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scenario-label">SCENARIO 1: AUTO-ROUTED (≥90% CONFIDENT)</div>
+    
+    <div class="email-container">
+        <div class="ai-badge">
+            🤖 Routed by AI
+        </div>
+        
+        <div class="email-header">
+            <div class="email-meta">
+                <div class="email-meta-item">
+                    <span class="email-meta-label">From:</span>
+                    <span class="email-meta-value">customer@email.com</span>
+                </div>
+                <div class="email-meta-item">
+                    <span class="email-meta-label">To:</span>
+                    <span class="email-meta-value">support@company.com</span>
+                </div>
+                <div class="email-meta-item">
+                    <span class="email-meta-label">Date:</span>
+                    <span class="email-meta-value">Dec 22, 2025, 2:34 PM</span>
+                </div>
+            </div>
+            <div class="email-subject">
+                Refund request for order #12345
+            </div>
+        </div>
+        
+        <div class="email-body">
+            <p>Hi Support Team,</p>
+            <br>
+            <p>I ordered a pair of running shoes yesterday (Order #12345) but they don't fit my daughter well. The size chart said 7.5 but they're way too small.</p>
+            <br>
+            <p>Can I please get a refund? I'd prefer the money back to my credit card rather than store credit.</p>
+            <br>
+            <p>Thank you!</p>
+        </div>
+        
+        <div class="email-actions">
+            <button class="btn-primary">Reply to Customer</button>
+            <button class="btn-secondary">+ Add Another Department</button>
+        </div>
+    </div>
+</body>
+</html>

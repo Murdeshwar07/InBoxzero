@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InboxZero - Pre-Sorted Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
+        }
+        
+        .ai-badge {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #e65100;
+            font-weight: 500;
+        }
+        
+        .email-header {
+            padding: 24px 24px 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .email-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .email-meta-item {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .email-meta-label {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 80px;
+        }
+        
+        .email-meta-value {
+            color: #111827;
+        }
+        
+        .email-subject {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .email-body {
+            padding: 24px;
+            background: #fafbfc;
+            color: #374151;
+            line-height: 1.6;
+            min-height: 150px;
+        }
+        
+        .ai-suggestion {
+            padding: 24px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .suggestion-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .confidence-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .category-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-item:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+        
+        .checkbox-item.checked {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-item.checked .checkbox {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .checkbox-item.checked .checkbox-label {
+            color: #1e40af;
+        }
+        
+        .ai-note {
+            font-size: 12px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .email-actions {
+            padding: 20px 24px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .scenario-label {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #111827;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scenario-label">SCENARIO 2: PRE-SORTED (60-89% CONFIDENT)</div>
+    
+    <div class="email-container">
+        <div class="ai-badge">
+            🤖 AI SUGGESTION - Please Confirm
+        </div>
+        
+        <div class="email-header">
+            <div class="email-meta">
+                <div class="email-meta-item">
+                    <span class="email-meta-label">From:</span>
+                    <span class="email-meta-value">frustrated.customer@email.com</span>
+                </div>
+                <div class="email-meta-item">
+                    <span class="email-meta-label">To:</span>
+                    <span class="email-meta-value">support@company.com</span>
+                </div>
+                <div class="email-meta-item">
+                    <span class="email-meta-label">Date:</span>
+                    <span class="email-meta-value">Dec 22, 2025, 3:15 PM</span>
+                </div>
+            </div>
+            <div class="email-subject">
+                Problem with my order - receipt and tracking issues
+            </div>
+        </div>
+        
+        <div class="email-body">
+            <p>Hello,</p>
+            <br>
+            <p>I ordered shoes two days ago (Order #67890) and I'm having multiple issues:</p>
+            <br>
+            <p>1. I never received a receipt via email, which I need for my expense report<br>
+            2. The tracking number you sent me doesn't work when I try to look it up</p>
+            <br>
+            <p>Can someone please help me with both of these?</p>
+            <br>
+            <p>Thanks</p>
+        </div>
+        
+        <div class="ai-suggestion">
+            <div class="suggestion-header">
+                <span class="suggestion-title">🎯 AI's Primary Suggestion:</span>
+                <span class="confidence-badge">73% confident</span>
+            </div>
+            
+            <div class="category-label">Select all departments that should handle this email:</div>
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Refunds</div>
+                </div>
+                
+                <div class="checkbox-item checked">
+                    <div class="checkbox">✓</div>
+                    <div>
+                        <div class="checkbox-label">Tech Support</div>
+                        <div class="ai-note">← AI's suggestion (receipt issue)</div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Tracking / Logistics</div>
+                </div>
+                
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
+                    <div class="checkbox-label">Other</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="email-actions">
+            <button class="btn-primary">Confirm & Route</button>
+        </div>
+    </div>
+</body>
+</html>
