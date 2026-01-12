@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 4: Interface — InboxZero Case Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-card: #18181b;
+            --bg-card-hover: #1f1f23;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #3b82f6;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --border: #27272a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .page-header {
+            padding: 8rem 2rem 4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .phase-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem 6rem;
+        }
+
+        .content-section {
+            margin-bottom: 4rem;
+        }
+
+        .content h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .content h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Analogy Box */
+        .analogy-box {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analogy-box::before {
+            content: '💬';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        .analogy-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-box h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-box p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* UX Comparison */
+        .ux-comparison {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .ux-option {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ux-option:hover {
+            border-color: var(--accent);
+        }
+
+        .ux-option.selected {
+            border-color: var(--success);
+        }
+
+        .ux-option-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ux-option-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .ux-option-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .ux-option.selected .ux-option-check {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .ux-option-title {
+            padding: 1.5rem;
+        }
+
+        .ux-option-title h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ux-option-title p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Mockup Preview */
+        .mockup-preview {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .mockup-bar {
+            background: var(--bg-primary);
+            padding: 0.75rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .mockup-content {
+            padding: 1rem;
+            min-height: 200px;
+        }
+
+        /* Pre-Sorter Mockup */
+        .presorter-folders {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .folder-icon {
+            font-size: 1rem;
+        }
+
+        .folder-count {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-card);
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        /* Assistant Mockup */
+        .assistant-view {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .email-preview {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .email-preview-header {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .email-preview-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .ai-suggestion {
+            background: var(--accent-soft);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .ai-suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-suggestion-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .confidence-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            background: var(--success);
+            border-radius: 4px;
+            color: white;
+        }
+
+        .confirm-btn {
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Pros/Cons */
+        .pros-cons {
+            padding: 1.5rem;
+        }
+
+        .pros-cons h5 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .pros-cons ul {
+            list-style: none;
+            font-size: 0.85rem;
+        }
+
+        .pros-cons li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .pros-cons li span {
+            flex-shrink: 0;
+        }
+
+        /* Reasoning */
+        .reasoning-box {
+            background: var(--bg-card);
+            border-left: 3px solid var(--success);
+            border-radius: 0 12px 12px 0;
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+        }
+
+        .reasoning-box h4 {
+            color: var(--success);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .reasoning-box p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Interactive Demo */
+        .demo-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 3rem 0;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .demo-header h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-header p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        .demo-interface {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .demo-toolbar {
+            background: var(--bg-primary);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .demo-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .demo-logo {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+        }
+
+        .demo-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .demo-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-tab.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .demo-body {
+            display: flex;
+            min-height: 300px;
+        }
+
+        .demo-sidebar {
+            width: 200px;
+            border-right: 1px solid var(--border);
+            padding: 1rem;
+        }
+
+        .demo-folder {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-folder:hover {
+            background: var(--bg-secondary);
+        }
+
+        .demo-folder.active {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .demo-folder-count {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .demo-main {
+            flex: 1;
+            padding: 1.5rem;
+        }
+
+        .demo-email-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .demo-email-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-email-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .demo-email-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .demo-email-content {
+            flex: 1;
+        }
+
+        .demo-email-sender {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .demo-email-subject {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .demo-email-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .demo-email-badge.refund {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .demo-email-badge.auto {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        /* Page Navigation */
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+
+        .nav-btn.next {
+            margin-left: auto;
+        }
+
+        .nav-btn-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-btn-title {
+            font-weight: 600;
+        }
+
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .linkedin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #0a66c2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .linkedin-btn:hover {
+            background: #004182;
+            transform: translateY(-2px);
+        }
+
+        .linkedin-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .ux-comparison { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 1rem; }
+            .nav-btn.next { margin-left: 0; }
+            .demo-sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">📧</div>
+                InboxZero
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Overview</a>
+                <a href="problem.html">Problem</a>
+                <a href="taxonomy.html">Taxonomy</a>
+                <a href="thresholds.html">Thresholds</a>
+                <a href="interface.html" class="active">Interface</a>
+                <a href="metrics.html">Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="breadcrumb">
+                <a href="index.html">Case Study</a>
+                <span>/</span>
+                <span>Phase 4</span>
+            </div>
+            <div class="phase-label">Phase 04</div>
+            <h1>The "Interface" — UX for the Support Agent</h1>
+            <p class="subtitle">The user is the Support Agent. They are stressed and working fast. The AI should not slow them down—it should make them faster.</p>
+        </header>
+
+        <article class="content">
+            <section class="content-section">
+                <h2>The User We're Designing For</h2>
+                <p>Forget the customer for a moment. Our primary user is the Customer Support Agent (CSA). They're handling 50+ tickets a day, working against an SLA timer, and one bad interaction away from a negative Glassdoor review.</p>
+                <p>The AI needs to be invisible when it's right and obvious when it needs help. This is not a consumer app—it's a productivity tool. Every click counts.</p>
+            </section>
+
+            <div class="analogy-box">
+                <div class="analogy-label">💬 Parallel Example</div>
+                <h3>Gmail Smart Reply</h3>
+                <p>Google doesn't force you to use AI-generated replies. It suggests 3 options at the bottom. You can ignore them, tap one, or type your own. It saves typing time without taking control away from the user. The AI is a suggestion, not a decision-maker.</p>
+            </div>
+
+            <section class="content-section">
+                <h2>The UX Decision</h2>
+                <p>How does the agent see and interact with the AI's classification work?</p>
+            </section>
+
+            <div class="ux-comparison">
+                <div class="ux-option" onclick="selectUX(this, 'presorter')">
+                    <div class="ux-option-header">
+                        <span class="ux-option-label">Option A</span>
+                        <div class="ux-option-check">✓</div>
+                    </div>
+                    <div class="ux-option-title">
+                        <h4>The Pre-Sorter</h4>
+                        <p>Agent logs in and folders are already filled. The AI moved emails silently.</p>
+                    </div>
+                    <div class="mockup-preview">
+                        <div class="mockup-bar">
+                            <div class="mockup-dot"></div>
+                            <div class="mockup-dot"></div>
+                            <div class="mockup-dot"></div>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="presorter-folders">
+                                <div class="folder-item">
+                                    <span class="folder-icon">💰</span>
+                                    <span>Returns & Refunds</span>
+                                    <span class="folder-count">23</span>
+                                </div>
+                                <div class="folder-item">
+                                    <span class="folder-icon">📦</span>
+                                    <span>Order Status</span>
+                                    <span class="folder-count">47</span>
+                                </div>
+                                <div class="folder-item">
+                                    <span class="folder-icon">👟</span>
+                                    <span>Product Questions</span>
+                                    <span class="folder-count">12</span>
+                                </div>
+                                <div class="folder-item">
+                                    <span class="folder-icon">⚠️</span>
+                                    <span>Needs Review</span>
+                                    <span class="folder-count">8</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pros-cons">
+                        <h5>Characteristics</h5>
+                        <ul>
+                            <li><span>✓</span> Maximum speed—no extra clicks</li>
+                            <li><span>✓</span> Agents focus on their specialty</li>
+                            <li><span>⚠️</span> Less visibility into AI decisions</li>
+                            <li><span>⚠️</span> Trust must be earned over time</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="ux-option selected" onclick="selectUX(this, 'assistant')">
+                    <div class="ux-option-header">
+                        <span class="ux-option-label">Option B</span>
+                        <div class="ux-option-check">✓</div>
+                    </div>
+                    <div class="ux-option-title">
+                        <h4>The Assistant</h4>
+                        <p>Agent opens an email and sees AI suggestion. One click to confirm.</p>
+                    </div>
+                    <div class="mockup-preview">
+                        <div class="mockup-bar">
+                            <div class="mockup-dot"></div>
+                            <div class="mockup-dot"></div>
+                            <div class="mockup-dot"></div>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="assistant-view">
+                                <div class="email-preview">
+                                    <div class="email-preview-header">I need a refund for order #12345</div>
+                                    <div class="email-preview-text">The shoes arrived but they're the wrong size. I ordered a 10 but received an 8...</div>
+                                </div>
+                                <div class="ai-suggestion">
+                                    <div class="ai-suggestion-header">
+                                        <span>🤖</span> AI Suggestion
+                                    </div>
+                                    <div class="ai-suggestion-content">
+                                        <div class="ai-tag">
+                                            <span>💰</span>
+                                            Returns & Refunds
+                                            <span class="confidence-badge">95%</span>
+                                        </div>
+                                        <button class="confirm-btn">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pros-cons">
+                        <h5>Characteristics</h5>
+                        <ul>
+                            <li><span>✓</span> Builds trust through transparency</li>
+                            <li><span>✓</span> Agents can correct mistakes</li>
+                            <li><span>✓</span> Better for MVP—gather feedback</li>
+                            <li><span>⚠️</span> Adds one click per email</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reasoning-box">
+                <h4>💡 Why "The Assistant" for MVP?</h4>
+                <p id="ux-reasoning">For an MVP, <strong>The Assistant</strong> model wins. It builds trust incrementally—agents see the AI's reasoning and can correct mistakes. This generates invaluable feedback data for improving the model. Once accuracy exceeds 95% and agents trust the system, you can graduate to The Pre-Sorter. Start with transparency, earn the right to automate.</p>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-header">
+                    <h3>Interactive Prototype</h3>
+                    <p>A simplified mockup of the agent interface</p>
+                </div>
+
+                <div class="demo-interface">
+                    <div class="demo-toolbar">
+                        <div class="demo-toolbar-left">
+                            <span class="demo-logo">📧 InboxZero</span>
+                            <div class="demo-tabs">
+                                <div class="demo-tab active">Inbox</div>
+                                <div class="demo-tab">Sent</div>
+                                <div class="demo-tab">Analytics</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-body">
+                        <div class="demo-sidebar">
+                            <div class="demo-folder active">
+                                <span>📥</span> Inbox
+                                <span class="demo-folder-count">90</span>
+                            </div>
+                            <div class="demo-folder">
+                                <span>💰</span> Refunds
+                                <span class="demo-folder-count">23</span>
+                            </div>
+                            <div class="demo-folder">
+                                <span>📦</span> Shipping
+                                <span class="demo-folder-count">47</span>
+                            </div>
+                            <div class="demo-folder">
+                                <span>⚠️</span> Review
+                                <span class="demo-folder-count">8</span>
+                            </div>
+                        </div>
+                        <div class="demo-main">
+                            <div class="demo-email-list">
+                                <div class="demo-email-item">
+                                    <div class="demo-email-avatar">JD</div>
+                                    <div class="demo-email-content">
+                                        <div class="demo-email-sender">John Doe</div>
+                                        <div class="demo-email-subject">Wrong size shoes, need exchange</div>
+                                    </div>
+                                    <span class="demo-email-badge refund">Refund</span>
+                                    <span class="demo-email-badge auto">Auto</span>
+                                </div>
+                                <div class="demo-email-item">
+                                    <div class="demo-email-avatar">SM</div>
+                                    <div class="demo-email-content">
+                                        <div class="demo-email-sender">Sarah Miller</div>
+                                        <div class="demo-email-subject">Where is my order #45678?</div>
+                                    </div>
+                                    <span class="demo-email-badge" style="background: rgba(59, 130, 246, 0.15); color: var(--accent);">Shipping</span>
+                                    <span class="demo-email-badge auto">Auto</span>
+                                </div>
+                                <div class="demo-email-item">
+                                    <div class="demo-email-avatar">MJ</div>
+                                    <div class="demo-email-content">
+                                        <div class="demo-email-sender">Mike Johnson</div>
+                                        <div class="demo-email-subject">Question about your return policy</div>
+                                    </div>
+                                    <span class="demo-email-badge" style="background: rgba(249, 115, 22, 0.15); color: var(--warning);">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <nav class="page-nav">
+            <a href="thresholds.html" class="nav-btn">
+                <span>←</span>
+                <div>
+                    <div class="nav-btn-label">Previous</div>
+                    <div class="nav-btn-title">Confidence Thresholds</div>
+                </div>
+            </a>
+            <a href="metrics.html" class="nav-btn next">
+                <div>
+                    <div class="nav-btn-label">Next Phase</div>
+                    <div class="nav-btn-title">Success Metrics</div>
+                </div>
+                <span>→</span>
+            </a>
+        </nav>
+    </main>
+
+    <footer>
+        <a href="https://www.linkedin.com/in/amogh-murdeshwar" target="_blank" rel="noopener noreferrer" class="linkedin-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Connect on LinkedIn
+        </a>
+        <p class="copyright">© 2024 Amogh Murdeshwar. Built with product thinking.</p>
+    </footer>
+
+    <script>
+        const reasonings = {
+            presorter: "The Pre-Sorter is ideal for <strong>mature systems</strong> with proven accuracy (95%+). It maximizes agent efficiency by eliminating classification work entirely. However, for an MVP, you'd be asking agents to trust a system they've never used. That's a recipe for resistance and workarounds. Save this for Phase 2.",
+            assistant: "For an MVP, <strong>The Assistant</strong> model wins. It builds trust incrementally—agents see the AI's reasoning and can correct mistakes. This generates invaluable feedback data for improving the model. Once accuracy exceeds 95% and agents trust the system, you can graduate to The Pre-Sorter. Start with transparency, earn the right to automate."
+        };
+
+        function selectUX(element, option) {
+            document.querySelectorAll('.ux-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('ux-reasoning').innerHTML = reasonings[option];
+        }
+    </script>
+</body>
+</html>

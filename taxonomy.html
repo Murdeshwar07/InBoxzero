@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2: Taxonomy — InboxZero Case Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-card: #18181b;
+            --bg-card-hover: #1f1f23;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #3b82f6;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --border: #27272a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --orange: #f97316;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .page-header {
+            padding: 8rem 2rem 4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .phase-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem 6rem;
+        }
+
+        .content-section {
+            margin-bottom: 4rem;
+        }
+
+        .content h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .content h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Analogy Box */
+        .analogy-box {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analogy-box::before {
+            content: '📚';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        .analogy-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-box h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-box p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Taxonomy Cards */
+        .taxonomy-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem 0;
+        }
+
+        .taxonomy-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .taxonomy-header h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .taxonomy-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .taxonomy-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .taxonomy-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .taxonomy-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .taxonomy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .taxonomy-card.refund::before { background: var(--danger); }
+        .taxonomy-card.shipping::before { background: var(--accent); }
+        .taxonomy-card.product::before { background: var(--purple); }
+        .taxonomy-card.account::before { background: var(--teal); }
+
+        .taxonomy-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .taxonomy-card.refund .taxonomy-icon { background: rgba(239, 68, 68, 0.15); }
+        .taxonomy-card.shipping .taxonomy-icon { background: rgba(59, 130, 246, 0.15); }
+        .taxonomy-card.product .taxonomy-icon { background: rgba(139, 92, 246, 0.15); }
+        .taxonomy-card.account .taxonomy-icon { background: rgba(20, 184, 166, 0.15); }
+
+        .taxonomy-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .taxonomy-card .description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .example-signals {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .example-signals-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .signal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .signal-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-card);
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        /* Anti-pattern Box */
+        .antipattern-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .antipattern-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--danger);
+            margin-bottom: 0.75rem;
+        }
+
+        .antipattern-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        /* Success Box */
+        .success-box {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .success-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 0.75rem;
+        }
+
+        .success-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        /* Overlap Diagram */
+        .overlap-demo {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .overlap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .overlap-header h4 {
+            font-size: 1rem;
+        }
+
+        .overlap-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .overlap-visual {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .category-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .category-circle.bad {
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid var(--danger);
+        }
+
+        .category-circle.good {
+            background: rgba(34, 197, 94, 0.3);
+            border: 2px solid var(--success);
+        }
+
+        .overlap-bad .category-circle:nth-child(2) {
+            margin-left: -40px;
+        }
+
+        .overlap-good .category-circle {
+            margin-left: 0;
+        }
+
+        /* Navigation Footer */
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+
+        .nav-btn.next {
+            margin-left: auto;
+        }
+
+        .nav-btn-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-btn-title {
+            font-weight: 600;
+        }
+
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .linkedin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #0a66c2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .linkedin-btn:hover {
+            background: #004182;
+            transform: translateY(-2px);
+        }
+
+        .linkedin-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .taxonomy-grid { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 1rem; }
+            .nav-btn.next { margin-left: 0; }
+            .overlap-visual { flex-direction: column; align-items: center; }
+            .overlap-bad .category-circle:nth-child(2) { margin-left: 0; margin-top: -40px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">📧</div>
+                InboxZero
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Overview</a>
+                <a href="problem.html">Problem</a>
+                <a href="taxonomy.html" class="active">Taxonomy</a>
+                <a href="thresholds.html">Thresholds</a>
+                <a href="interface.html">Interface</a>
+                <a href="metrics.html">Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="breadcrumb">
+                <a href="index.html">Case Study</a>
+                <span>/</span>
+                <span>Phase 2</span>
+            </div>
+            <div class="phase-label">Phase 02</div>
+            <h1>The "Data" — Taxonomy & Labelling Strategy</h1>
+            <p class="subtitle">This is where 90% of AI projects fail. If you tell the AI to sort emails into "General Inquiries," it will fail because everything is a general inquiry.</p>
+        </header>
+
+        <article class="content">
+            <section class="content-section">
+                <h2>The Overlooked PM Skill</h2>
+                <p>Every ML engineer will tell you: "Garbage in, garbage out." But what they won't tell you is that defining the "garbage" is a product decision, not a technical one.</p>
+                <p>You need distinct, non-overlapping categories (classes). The moment two categories can reasonably contain the same email, your model will struggle and your agents will lose trust.</p>
+            </section>
+
+            <div class="analogy-box">
+                <div class="analogy-label">📚 Parallel Example</div>
+                <h3>Library Systems</h3>
+                <p>You don't just have a "Books" section. You have "Fiction," "Non-Fiction," "Sci-Fi," "Biography." A book cannot easily be in two places at once. The Dewey Decimal System works because it forces mutual exclusivity. Your email taxonomy must do the same.</p>
+            </div>
+
+            <section class="content-section">
+                <h2>The Golden Rule</h2>
+                <p>Your categories must be distinct enough that a 5-year-old could tell them apart. If you have to explain the difference between two categories, they're too similar.</p>
+
+                <div class="antipattern-box">
+                    <div class="antipattern-label">
+                        <span>⚠️</span> Common Anti-Pattern
+                    </div>
+                    <p>"Shipping Question" and "Where is my Order?" — These feel different but are functionally identical. The AI will constantly confuse them, and your accuracy metrics will suffer. Merge them into one category: <strong>"Order Status & Delivery."</strong></p>
+                </div>
+
+                <div class="success-box">
+                    <div class="success-label">
+                        <span>✓</span> The Fix
+                    </div>
+                    <p>Ask yourself: "Would the same support agent handle both of these?" If yes, they should be the same category. Categories should map to routing decisions, not semantic meanings.</p>
+                </div>
+            </section>
+
+            <div class="taxonomy-section">
+                <div class="taxonomy-header">
+                    <h3>The 4 Intent Categories</h3>
+                    <p>For an e-commerce store (e.g., selling shoes) — distinct, actionable, and mutually exclusive.</p>
+                </div>
+
+                <div class="taxonomy-grid">
+                    <div class="taxonomy-card refund">
+                        <div class="taxonomy-icon">💰</div>
+                        <h4>Returns & Refunds</h4>
+                        <p class="description">Customer wants money back or to exchange a product. High urgency, clear resolution path.</p>
+                        <div class="example-signals">
+                            <div class="example-signals-label">Signal Keywords</div>
+                            <div class="signal-tags">
+                                <span class="signal-tag">"refund"</span>
+                                <span class="signal-tag">"return"</span>
+                                <span class="signal-tag">"money back"</span>
+                                <span class="signal-tag">"exchange"</span>
+                                <span class="signal-tag">"wrong size"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taxonomy-card shipping">
+                        <div class="taxonomy-icon">📦</div>
+                        <h4>Order Status & Delivery</h4>
+                        <p class="description">Where is my order? When will it arrive? Tracking inquiries. Low complexity, high volume.</p>
+                        <div class="example-signals">
+                            <div class="example-signals-label">Signal Keywords</div>
+                            <div class="signal-tags">
+                                <span class="signal-tag">"tracking"</span>
+                                <span class="signal-tag">"delivery"</span>
+                                <span class="signal-tag">"shipped"</span>
+                                <span class="signal-tag">"ETA"</span>
+                                <span class="signal-tag">"where is"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taxonomy-card product">
+                        <div class="taxonomy-icon">👟</div>
+                        <h4>Product Questions</h4>
+                        <p class="description">Pre-sale inquiries. Sizing, materials, availability. Opportunity for conversion.</p>
+                        <div class="example-signals">
+                            <div class="example-signals-label">Signal Keywords</div>
+                            <div class="signal-tags">
+                                <span class="signal-tag">"size guide"</span>
+                                <span class="signal-tag">"available in"</span>
+                                <span class="signal-tag">"what material"</span>
+                                <span class="signal-tag">"restock"</span>
+                                <span class="signal-tag">"does it fit"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taxonomy-card account">
+                        <div class="taxonomy-icon">🔐</div>
+                        <h4>Account & Technical</h4>
+                        <p class="description">Login issues, password resets, payment problems. Requires system access to resolve.</p>
+                        <div class="example-signals">
+                            <div class="example-signals-label">Signal Keywords</div>
+                            <div class="signal-tags">
+                                <span class="signal-tag">"can't login"</span>
+                                <span class="signal-tag">"password"</span>
+                                <span class="signal-tag">"payment failed"</span>
+                                <span class="signal-tag">"update email"</span>
+                                <span class="signal-tag">"account"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="content-section">
+                <h2>Why These 4?</h2>
+                <p><strong>Returns & Refunds:</strong> Different team, different SLA, different authority level. An agent needs refund approval rights to handle these.</p>
+                <p><strong>Order Status:</strong> 60% of all e-commerce emails. Automatable. Often resolved by sending a tracking link—no human needed.</p>
+                <p><strong>Product Questions:</strong> Pre-sale = revenue opportunity. These should go to sales-trained agents, not support agents.</p>
+                <p><strong>Account & Technical:</strong> Requires backend access. These agents need different tools than the refund team.</p>
+            </section>
+
+            <div class="overlap-demo">
+                <div class="overlap-header">
+                    <h4>Category Overlap Visualization</h4>
+                    <div class="overlap-toggle">
+                        <button class="toggle-btn active" onclick="showOverlap('bad')">❌ Bad Design</button>
+                        <button class="toggle-btn" onclick="showOverlap('good')">✓ Good Design</button>
+                    </div>
+                </div>
+                <div class="overlap-visual overlap-bad" id="overlap-visual">
+                    <div class="category-circle bad">Shipping<br>Questions</div>
+                    <div class="category-circle bad">Where is<br>my Order?</div>
+                </div>
+                <p id="overlap-description" style="text-align: center; margin-top: 1rem; color: var(--text-secondary);">
+                    These categories overlap significantly. The AI will constantly misclassify between them.
+                </p>
+            </div>
+        </article>
+
+        <nav class="page-nav">
+            <a href="problem.html" class="nav-btn">
+                <span>←</span>
+                <div>
+                    <div class="nav-btn-label">Previous</div>
+                    <div class="nav-btn-title">The Problem</div>
+                </div>
+            </a>
+            <a href="thresholds.html" class="nav-btn next">
+                <div>
+                    <div class="nav-btn-label">Next Phase</div>
+                    <div class="nav-btn-title">Confidence Thresholds</div>
+                </div>
+                <span>→</span>
+            </a>
+        </nav>
+    </main>
+
+    <footer>
+        <a href="https://www.linkedin.com/in/amogh-murdeshwar" target="_blank" rel="noopener noreferrer" class="linkedin-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Connect on LinkedIn
+        </a>
+        <p class="copyright">© 2024 Amogh Murdeshwar. Built with product thinking.</p>
+    </footer>
+
+    <script>
+        function showOverlap(type) {
+            const visual = document.getElementById('overlap-visual');
+            const description = document.getElementById('overlap-description');
+            const buttons = document.querySelectorAll('.toggle-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (type === 'bad') {
+                visual.className = 'overlap-visual overlap-bad';
+                visual.innerHTML = `
+                    <div class="category-circle bad">Shipping<br>Questions</div>
+                    <div class="category-circle bad">Where is<br>my Order?</div>
+                `;
+                description.textContent = "These categories overlap significantly. The AI will constantly misclassify between them.";
+            } else {
+                visual.className = 'overlap-visual overlap-good';
+                visual.innerHTML = `
+                    <div class="category-circle good">Returns &<br>Refunds</div>
+                    <div class="category-circle good">Order<br>Status</div>
+                `;
+                description.textContent = "These categories are distinct. A refund request is never confused with a tracking inquiry.";
+            }
+        }
+    </script>
+</body>
+</html>

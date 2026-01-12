@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1: The Problem — InboxZero Case Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-card: #18181b;
+            --bg-card-hover: #1f1f23;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #3b82f6;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --border: #27272a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 8rem 2rem 4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .phase-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        /* Content */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem 6rem;
+        }
+
+        .content-section {
+            margin-bottom: 4rem;
+        }
+
+        .content h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .content h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Analogy Box */
+        .analogy-box {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analogy-box::before {
+            content: '📮';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        .analogy-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-box h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-box p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Decision Cards */
+        .decision-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem 0;
+        }
+
+        .decision-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .decision-header h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .decision-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .decision-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .decision-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .decision-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .decision-card.selected {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .decision-card .option-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .decision-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .decision-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        .decision-card .check-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 24px;
+            height: 24px;
+            background: var(--success);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        .decision-card.selected .check-icon {
+            display: flex;
+        }
+
+        /* Reasoning Box */
+        .reasoning-box {
+            background: var(--bg-card);
+            border-left: 3px solid var(--success);
+            border-radius: 0 12px 12px 0;
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .reasoning-box.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reasoning-box h4 {
+            color: var(--success);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .reasoning-box p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Navigation Footer */
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+
+        .nav-btn.next {
+            margin-left: auto;
+        }
+
+        .nav-btn-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-btn-title {
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .linkedin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #0a66c2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .linkedin-btn:hover {
+            background: #004182;
+            transform: translateY(-2px);
+        }
+
+        .linkedin-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .decision-grid { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 1rem; }
+            .nav-btn.next { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">📧</div>
+                InboxZero
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Overview</a>
+                <a href="problem.html" class="active">Problem</a>
+                <a href="taxonomy.html">Taxonomy</a>
+                <a href="thresholds.html">Thresholds</a>
+                <a href="interface.html">Interface</a>
+                <a href="metrics.html">Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="breadcrumb">
+                <a href="index.html">Case Study</a>
+                <span>/</span>
+                <span>Phase 1</span>
+            </div>
+            <div class="phase-label">Phase 01</div>
+            <h1>The "Why" — The Operational Bottleneck</h1>
+            <p class="subtitle">In AI for Operations, we don't solve "user happiness" directly—we solve inefficiency. Defining the pain point shapes every technical decision downstream.</p>
+        </header>
+
+        <article class="content">
+            <section class="content-section">
+                <h2>The Core Insight</h2>
+                <p>Customer Support Agents (CSAs) are expensive humans. Right now, we're paying them to read an email and decide "This is a Refund Request." That's a waste of human intelligence.</p>
+                <p>The same agent who could be crafting a thoughtful response to an angry customer, building loyalty and preventing churn, is instead doing cognitive sorting work that a machine should handle.</p>
+            </section>
+
+            <div class="analogy-box">
+                <div class="analogy-label">📮 Parallel Example</div>
+                <h3>The Post Office</h3>
+                <p>They don't have humans reading every zip code on every envelope anymore. Machines read the zip code and sort the mail. Humans only touch the mail that has bad handwriting. Our AI email system follows the same principle—automate the obvious, escalate the ambiguous.</p>
+            </div>
+
+            <section class="content-section">
+                <h2>Framing the Problem Statement</h2>
+                <p>Before we write a single line of code or train any model, we need absolute clarity on what we're optimizing for. The answer to this question determines:</p>
+                <p><strong>Model Aggressiveness:</strong> How confident should the AI be before it acts autonomously?</p>
+                <p><strong>Success Metrics:</strong> What numbers will we show leadership in the quarterly review?</p>
+                <p><strong>Trade-off Decisions:</strong> When speed and accuracy conflict, which wins?</p>
+            </section>
+
+            <div class="decision-section">
+                <div class="decision-header">
+                    <h3>The Key Decision</h3>
+                    <p>Which specific pain point are we solving for the Support Manager?</p>
+                </div>
+
+                <div class="decision-grid">
+                    <div class="decision-card" onclick="selectOption(this, 'speed')">
+                        <div class="check-icon">✓</div>
+                        <div class="option-label">Option A</div>
+                        <h4>Speed</h4>
+                        <p>Customers wait 24+ hours for a reply. First response time is killing our CSAT scores.</p>
+                    </div>
+
+                    <div class="decision-card selected" onclick="selectOption(this, 'cost')">
+                        <div class="check-icon">✓</div>
+                        <div class="option-label">Option B</div>
+                        <h4>Cost</h4>
+                        <p>We're hiring too many agents just to sort mail. Headcount is growing faster than revenue.</p>
+                    </div>
+
+                    <div class="decision-card" onclick="selectOption(this, 'accuracy')">
+                        <div class="check-icon">✓</div>
+                        <div class="option-label">Option C</div>
+                        <h4>Accuracy</h4>
+                        <p>Tired agents send "Refund" tickets to the "Tech Support" team by mistake. Misrouting is chaos.</p>
+                    </div>
+                </div>
+
+                <div class="reasoning-box visible" id="reasoning-box">
+                    <h4>💡 Why Cost?</h4>
+                    <p id="reasoning-text">For an MVP, <strong>Cost</strong> is the most defensible choice. It's directly measurable (headcount, $/ticket), easy to prove ROI to leadership, and gives us room to iterate. If we pick Speed, we're racing against infrastructure investments. If we pick Accuracy, we need near-perfect models before launch. Cost lets us demonstrate value even with an 80% automation rate.</p>
+                </div>
+            </div>
+
+            <section class="content-section">
+                <h2>The Implications of Our Choice</h2>
+                <p>By choosing <strong>Cost Reduction</strong> as our primary pain point, we've made several implicit decisions:</p>
+                <p><strong>Model Strategy:</strong> We'll prioritize high-confidence classifications. It's better to leave an email for a human than to misroute it.</p>
+                <p><strong>Success Metric:</strong> Our North Star becomes "Tickets auto-classified without human intervention."</p>
+                <p><strong>MVP Scope:</strong> We can launch with fewer intent categories. Even 4 well-defined buckets can drive significant value.</p>
+            </section>
+        </article>
+
+        <nav class="page-nav">
+            <a href="index.html" class="nav-btn">
+                <span>←</span>
+                <div>
+                    <div class="nav-btn-label">Previous</div>
+                    <div class="nav-btn-title">Overview</div>
+                </div>
+            </a>
+            <a href="taxonomy.html" class="nav-btn next">
+                <div>
+                    <div class="nav-btn-label">Next Phase</div>
+                    <div class="nav-btn-title">Data Taxonomy</div>
+                </div>
+                <span>→</span>
+            </a>
+        </nav>
+    </main>
+
+    <footer>
+        <a href="https://www.linkedin.com/in/amogh-murdeshwar" target="_blank" rel="noopener noreferrer" class="linkedin-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Connect on LinkedIn
+        </a>
+        <p class="copyright">© 2024 Amogh Murdeshwar. Built with product thinking.</p>
+    </footer>
+
+    <script>
+        const reasonings = {
+            speed: "Choosing Speed means we're competing with infrastructure investments (faster servers, more bandwidth). It's harder to prove AI value when the alternative is 'just hire more people for the night shift.' Speed is a valid goal for Phase 2, but not for proving initial ROI.",
+            cost: "For an MVP, <strong>Cost</strong> is the most defensible choice. It's directly measurable (headcount, $/ticket), easy to prove ROI to leadership, and gives us room to iterate. If we pick Speed, we're racing against infrastructure investments. If we pick Accuracy, we need near-perfect models before launch. Cost lets us demonstrate value even with an 80% automation rate.",
+            accuracy: "Accuracy is a trap for an MVP. To prove accuracy improvements, you need baseline measurements, A/B testing infrastructure, and near-perfect models. That's a 6-month investment before showing any value. Save this for Phase 2 once you've proven the system works."
+        };
+
+        function selectOption(card, option) {
+            document.querySelectorAll('.decision-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            const reasoningBox = document.getElementById('reasoning-box');
+            const reasoningText = document.getElementById('reasoning-text');
+            
+            reasoningBox.classList.remove('visible');
+            
+            setTimeout(() => {
+                reasoningText.innerHTML = reasonings[option];
+                reasoningBox.classList.add('visible');
+            }, 150);
+        }
+    </script>
+</body>
+</html>
